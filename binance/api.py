@@ -121,3 +121,14 @@ class Api:
     # Account trade list (SIGNED)
     # GET /api/v3/myTrades
 
+    # =====================
+    # User stream endpoints
+    # =====================
+    # Start user data stream (API-KEY)
+    # POST /api/v1/userDataStream
+
+    # Keepalive user data stream (API-KEY)
+    # PUT /api/v1/userDataStream
+
+    # Close user data stream (API-KEY)
+    # DELETE /api/v1/userDataStream
