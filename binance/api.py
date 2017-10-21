@@ -17,11 +17,30 @@ class Api:
 
     async def _request(self, path, method='get', signed=False, **kwargs):
         uri = self.BASE_URL + path
+        print(kwargs)
         async with aiohttp.ClientSession() as session:
             params = {'params': kwargs.get('params')}
             response = await session.request(method, uri, **params)
             result = json.loads(await response.text())
             return result
+
+    async def _get(self, path, signed=False, **kwargs):
+        return await self._request(path, 'get', signed, **kwargs)
+
+    async def _post(self, path, signed=False, **kwargs):
+        return await self._request(path, 'post', signed, **kwargs)
+
+    async def _put(self, path, signed=False, **kwargs):
+        return await self._request(path, 'put', signed, **kwargs)
+
+    async def _delete(self, path, signed=False, **kwargs):
+        return await self._request(path, 'delete', signed, **kwargs)
+
+    async def _head(self, path, signed=False, **kwargs):
+        return await self._request(path, 'head', signed, **kwargs)
+
+    async def _option(self, path, signed=False, **kwargs):
+        return await self._request(path, 'option', signed, **kwargs)
 
     # =============================
     # General endpoints collections
@@ -30,7 +49,7 @@ class Api:
     # GET /api/v1/ping
     async def ping(self):
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/v1/ping')
+            response = await self._get('/v1/ping')
             session.close()
             return response
 
@@ -38,7 +57,7 @@ class Api:
     # GET /api/v1/time
     async def get_server_time(self):
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/v1/time')
+            response = await self._get('/v1/time')
             session.close()
             return response
 
@@ -48,9 +67,10 @@ class Api:
     # Order book
     # GET /api/v1/depth
     async def get_order_book(self, **params):
+        print(params)
         async with aiohttp.ClientSession() as session:
             kwargs = {"params": params}
-            response = await self._request('/v1/depth', **kwargs)
+            response = await self._get('/v1/depth', **kwargs)
             session.close()
             return response
 

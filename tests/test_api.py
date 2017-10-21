@@ -28,4 +28,4 @@ def test_get_order_book():
     loop.run_until_complete(task)
     order_book = task.result()
     print(order_book)
-    # assert 100 > time.time() * 1000 - order_book > 0
+    assert 100 > time.time() * 1000 - order_book > 0
