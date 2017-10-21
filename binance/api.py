@@ -119,6 +119,11 @@ class Api:
     # =================
     # New order (SIGNED)
     # POST /api/v3/order
+    async def get_orders(self):
+        async with aiohttp.ClientSession() as session:
+            response = await self._request('/api/v3/order')
+            session.close
+            return response
 
     # Test new order (SIGNED)
     # POST /api/v3/order/test
