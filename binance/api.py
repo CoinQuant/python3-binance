@@ -17,7 +17,6 @@ class Api:
 
     async def _request(self, path, method='get', signed=False, **kwargs):
         uri = self.BASE_URL + path
-        print(kwargs)
         async with aiohttp.ClientSession() as session:
             params = {'params': kwargs.get('params')}
             response = await session.request(method, uri, **params)
