@@ -2,6 +2,7 @@ import sys
 import time
 import json
 import asyncio
+from nose.tools import raises
 sys.path.append("..")
 from binance.api import Api
 
@@ -20,12 +21,20 @@ def test_get_server_time():
     loop.run_until_complete(task)
     result = task.result()
     server_time = result['serverTime']
-    assert 0 < time.time() * 1000 - server_time < 100
+    assert 0 < time.time() * 1000 - server_time < 1000
+
+
+@raises(ValueError)
+def test_get_order_book_wo_symbol():
+    task = asyncio.ensure_future(client.get_order_book())
+    loop.run_until_complete(task)
+    pass
 
 
 def test_get_order_book():
     task = asyncio.ensure_future(client.get_order_book(symbol='BNBBTC'))
     loop.run_until_complete(task)
     order_book = task.result()
-    print(order_book)
-    assert 100 > time.time() * 1000 - order_book > 0
+    assert type(order_book['lastUpdateId']) == int
+    assert type(order_book['bids']) == list
+    assert type(order_book['asks']) == list

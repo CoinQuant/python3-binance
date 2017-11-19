@@ -21,6 +21,8 @@ class Api:
             params = {'params': kwargs.get('params')}
             response = await session.request(method, uri, **params)
             result = json.loads(await response.text())
+            if result.__contains__('msg') and result.__contains__('code'):
+                raise Exception('[' + result['code'] + ']: ' + result['msg'])
             return result
 
     async def _get(self, path, signed=False, **kwargs):
@@ -66,10 +68,10 @@ class Api:
     # Order book
     # GET /api/v1/depth
     async def get_order_book(self, **params):
-        print(params)
+        if params.get('symbol') is None:
+            raise ValueError('parameter symbol is required!')
         async with aiohttp.ClientSession() as session:
-            kwargs = {"params": params}
-            response = await self._get('/v1/depth', **kwargs)
+            response = await self._get('/v1/depth', params=params)
             session.close()
             return response
 
