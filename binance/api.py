@@ -18,8 +18,7 @@ class Api:
     async def _request(self, path, method='get', signed=False, **kwargs):
         uri = self.BASE_URL + path
         async with aiohttp.ClientSession() as session:
-            params = {'params': kwargs.get('params')}
-            response = await session.request(method, uri, **params)
+            response = await session.request(method, uri, params=kwargs.get('params'))
             result = json.loads(await response.text())
             if result.__contains__('msg') and result.__contains__('code'):
                 raise Exception('[' + result['code'] + ']: ' + result['msg'])
@@ -70,6 +69,8 @@ class Api:
     async def get_order_book(self, **params):
         if params.get('symbol') is None:
             raise ValueError('parameter symbol is required!')
+        if params.__contains__('limit') and (params.get('limit') > 100 or params.get('limit') < 1):
+            params['limit'] = 100
         async with aiohttp.ClientSession() as session:
             response = await self._get('/v1/depth', params=params)
             session.close()
