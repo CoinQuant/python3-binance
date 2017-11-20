@@ -37,7 +37,9 @@ def test_get_order_book_with_limit():
     order_book = task.result()
     assert type(order_book['lastUpdateId']) == int
     assert type(order_book['bids']) == list
+    assert len(order_book['bids']) == 100
     assert type(order_book['asks']) == list
+    assert len(order_book['asks']) == 100
 
 
 def test_get_order_book():

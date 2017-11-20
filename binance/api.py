@@ -1,6 +1,6 @@
 import asyncio
 import json
-import warnings
+import logging
 import aiohttp
 
 
@@ -11,6 +11,7 @@ class Api:
         self.API_KEY = api_key
         self.API_SECRET = api_secret
         self.BASE_URL = 'https://www.binance.com/api'
+        self.logger = logging.getLogger()
 
     # private methods
     def _generate_uri(self, path):
@@ -18,11 +19,12 @@ class Api:
 
     async def _request(self, path, method='get', signed=False, **kwargs):
         uri = self.BASE_URL + path
+        params = kwargs.get('params') or {}
         async with aiohttp.ClientSession() as session:
-            response = await session.request(method, uri, params=kwargs.get('params'))
+            response = await session.request(method, uri, params=params)
             result = json.loads(await response.text())
             if result.__contains__('msg') and result.__contains__('code'):
-                raise Exception('[' + result['code'] + ']: ' + result['msg'])
+                raise Exception('[' + str(result['code']) + ']: ' + result['msg'])
             return result
 
     async def _get(self, path, signed=False, **kwargs):
@@ -68,10 +70,10 @@ class Api:
     # Order book
     # GET /api/v1/depth
     async def get_order_book(self, **params):
-        if params.get('symbol') is None:
+        if params.__contains__('symbol') is False:
             raise ValueError('parameter symbol is required!')
         if params.__contains__('limit') and (params.get('limit') > 100 or params.get('limit') < 1):
-            warnings.warn('parameter limit is above the upper, reset to 100')
+            self.logger.warning('parameter limit is above the upper, reset to 100')
             params['limit'] = 100
         async with aiohttp.ClientSession() as session:
             response = await self._get('/v1/depth', params=params)
@@ -81,7 +83,7 @@ class Api:
     # Compressed/Aggregate trades list
     # GET /api/v1/aggTrades
     async def get_agg_trades_list(self, **params):
-        if params.get('symbol') is None:
+        if params.__contains__('symbol') is False:
             raise ValueError('parameter symbol is required!')
         if params.__contains__('startTime') and params.__contains__('endTime'):
             del params['limit']
@@ -92,7 +94,12 @@ class Api:
 
     # Kline/candlesticks
     # GET /api/v1/klines
-    async def get_klines(self):
+    async def get_klines(self, **params):
+        if params.__contains__('symbol') is False:
+            raise ValueError('parameter symbol is required!')
+        if params.get('limit') and (params.get('limit') > 500 or params.get('limit') < 1):
+            self.logger.warning('parameter limit is above the upper, reset to 100')
+            params['limit'] = 500
         async with aiohttp.ClientSession() as session:
             response = await self._request('/api/v1/klines')
             session.close()
@@ -100,7 +107,9 @@ class Api:
 
     # 24hr ticker price change statistics
     # GET /api/v1/ticker/24hr
-    async def get_ticker(self):
+    async def get_ticker(self, **params):
+        if params.__contains__('symbol') is False:
+            raise ValueError('parameter symbol is required!')
         async with aiohttp.ClientSession() as session:
             response = await self._request('/api/v1/ticker/24hr')
             session.close()
