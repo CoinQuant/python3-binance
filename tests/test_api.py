@@ -31,6 +31,15 @@ def test_get_order_book_wo_symbol():
     pass
 
 
+def test_get_order_book_with_limit():
+    task = asyncio.ensure_future(client.get_order_book(symbol='BNBBTC', limit=101))
+    loop.run_until_complete(task)
+    order_book = task.result()
+    assert type(order_book['lastUpdateId']) == int
+    assert type(order_book['bids']) == list
+    assert type(order_book['asks']) == list
+
+
 def test_get_order_book():
     task = asyncio.ensure_future(client.get_order_book(symbol='BNBBTC'))
     loop.run_until_complete(task)

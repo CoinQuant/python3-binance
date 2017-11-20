@@ -1,5 +1,6 @@
 import asyncio
 import json
+import warnings
 import aiohttp
 
 
@@ -70,6 +71,7 @@ class Api:
         if params.get('symbol') is None:
             raise ValueError('parameter symbol is required!')
         if params.__contains__('limit') and (params.get('limit') > 100 or params.get('limit') < 1):
+            warnings.warn('parameter limit is above the upper, reset to 100')
             params['limit'] = 100
         async with aiohttp.ClientSession() as session:
             response = await self._get('/v1/depth', params=params)
@@ -78,7 +80,11 @@ class Api:
 
     # Compressed/Aggregate trades list
     # GET /api/v1/aggTrades
-    async def get_agg_trades_list(self):
+    async def get_agg_trades_list(self, **params):
+        if params.get('symbol') is None:
+            raise ValueError('parameter symbol is required!')
+        if params.__contains__('startTime') and params.__contains__('endTime'):
+            del params['limit']
         async with aiohttp.ClientSession() as session:
             response = await self._request('/v1/aggTrades')
             session.close()
