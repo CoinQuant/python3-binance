@@ -88,7 +88,7 @@ class Api:
         if params.__contains__('startTime') and params.__contains__('endTime'):
             del params['limit']
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/v1/aggTrades')
+            response = await self._get('/v1/aggTrades', params=params)
             session.close()
             return response
 
@@ -97,11 +97,13 @@ class Api:
     async def get_klines(self, **params):
         if params.__contains__('symbol') is False:
             raise ValueError('parameter symbol is required!')
+        if params.__contains__('interval') is False:
+            raise ValueError('parameter interval is required!')
         if params.get('limit') and (params.get('limit') > 500 or params.get('limit') < 1):
             self.logger.warning('parameter limit is above the upper, reset to 100')
             params['limit'] = 500
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/api/v1/klines')
+            response = await self._get('/v1/klines', params=params)
             session.close()
             return response
 
@@ -111,7 +113,7 @@ class Api:
         if params.__contains__('symbol') is False:
             raise ValueError('parameter symbol is required!')
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/api/v1/ticker/24hr')
+            response = await self._get('/v1/ticker/24hr', params=params)
             session.close()
             return response
 
@@ -119,7 +121,7 @@ class Api:
     # GET /api/v1/ticker/allPrices
     async def get_all_prices(self):
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/api/v1/ticker/allPrices')
+            response = await self._get('/v1/ticker/allPrices')
             session.close()
             return response
 
@@ -127,7 +129,7 @@ class Api:
     # GET /api/v1/ticker/allBookTickers
     async def get_all_orderbook_ticker(self):
         async with aiohttp.ClientSession() as session:
-            response = await self._request('/api/v1/ticker/allBookTickers')
+            response = await self._get('/v1/ticker/allBookTickers')
             session.close()
             return response
 
