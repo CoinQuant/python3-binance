@@ -1,8 +1,10 @@
 import asyncio
+import hashlib
+import hmac
 import json
 import logging
 import aiohttp
-
+from urllib.parse import urlencode
 
 class Api:
 
@@ -44,6 +46,14 @@ class Api:
 
     async def _option(self, path, signed=False, **kwargs):
         return await self._request(path, 'option', signed, **kwargs)
+
+    def _gen_signature(self, r_querystring = None, r_request_body = None):
+        querystring = urlencode(r_querystring)
+        request_body = urlencode(r_request_body)
+        payload = querystring + request_body
+        m = hmac.new(self.API_SECRET.encode('utf-8'), payload.encode('utf-8'), hashlib.sha256)
+        return m.hexdigest()
+
 
     # =============================
     # General endpoints collections
