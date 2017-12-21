@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 
 class Api:
 
-    def __init__(self, api_key= None, api_secret = None):
+    def __init__(self, api_key=None, api_secret=None):
 
         self.API_KEY = api_key
         self.API_SECRET = api_secret
@@ -47,10 +47,12 @@ class Api:
     async def _option(self, path, signed=False, **kwargs):
         return await self._request(path, 'option', signed, **kwargs)
 
-    def _gen_signature(self, r_querystring = None, r_request_body = None):
-        querystring = urlencode(r_querystring)
-        request_body = urlencode(r_request_body)
-        payload = querystring + request_body
+    def _gen_signature(self, r_querystring=None, r_request_body=None):
+        payload = ""
+        if r_querystring:
+            payload += urlencode(r_querystring)
+        if r_request_body:
+            payload += urlencode(r_request_body)
         m = hmac.new(self.API_SECRET.encode('utf-8'), payload.encode('utf-8'), hashlib.sha256)
         return m.hexdigest()
 
